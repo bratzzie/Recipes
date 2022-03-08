@@ -1,8 +1,14 @@
 package com.stud.recipes;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 
@@ -18,13 +24,23 @@ public class Recipe {
     @NotBlank
     private String description;
 
+    @Column(name = "category")
+    @NotBlank
+    private String category;
+
+    @Column(name = "date")
+    @UpdateTimestamp
+    private LocalDateTime date;
+
     @ElementCollection
+    @NotEmpty
     @Size(min = 1)
     @Column
     @CollectionTable(name = "ingredients", joinColumns = @JoinColumn(name = "id", nullable=false))
     private List<String> ingredients;
 
     @ElementCollection
+    @NotEmpty
     @Size(min = 1)
     @Column
     @CollectionTable(name = "directions", joinColumns = @JoinColumn(name = "id", nullable=false))
@@ -37,6 +53,16 @@ public class Recipe {
 
 
     public Recipe() {
+    }
+
+    public Recipe(String name, String description, String category, LocalDateTime date, List<String> ingredients, List<String> directions, Long id) {
+        this.name = name;
+        this.description = description;
+        this.category = category;
+        this.date =  date;
+        this.ingredients = ingredients;
+        this.directions = directions;
+        this.id = id;
     }
 
     public String getName() {
@@ -72,7 +98,8 @@ public class Recipe {
         this.directions = directions;
     }
 
-
+    @JsonIgnore
+    @JsonProperty(value = "id")
     public Long getId() {
         return id;
     }
@@ -81,27 +108,32 @@ public class Recipe {
         this.id = id;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Recipe recipe = (Recipe) o;
-        return Objects.equals(getName(), recipe.getName()) && Objects.equals(getDescription(), recipe.getDescription()) && Objects.equals(getIngredients(), recipe.getIngredients()) && Objects.equals(getDirections(), recipe.getDirections()) && Objects.equals(getId(), recipe.getId());
+        return Objects.equals(getName(), recipe.getName()) && Objects.equals(getDescription(), recipe.getDescription()) && Objects.equals(getCategory(), recipe.getCategory()) && Objects.equals(getDate(), recipe.getDate()) && Objects.equals(getIngredients(), recipe.getIngredients()) && Objects.equals(getDirections(), recipe.getDirections()) && Objects.equals(getId(), recipe.getId());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getDescription(), getIngredients(), getDirections(), getId());
-    }
-
-    @Override
-    public String toString() {
-        return "Recipe{" +
-                "name='" + name + '\'' +
-                ", description='" + description + '\'' +
-                ", ingredients=" + ingredients +
-                ", directions=" + directions +
-                ", id=" + id +
-                '}';
+        return Objects.hash(getName(), getDescription(), getCategory(), getDate(), getIngredients(), getDirections(), getId());
     }
 }
