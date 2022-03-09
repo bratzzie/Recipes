@@ -1,7 +1,8 @@
-package com.stud.recipes;
+package com.stud.recipes.recipe;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.stud.recipes.user.User;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import javax.persistence.*;
@@ -10,7 +11,6 @@ import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Objects;
 
 @Entity
 @Table(name = "recipes")
@@ -19,6 +19,10 @@ public class Recipe {
     @Column(name = "name")
     @NotBlank
     private String name;
+
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @Column(name = "description")
     @NotBlank
@@ -55,15 +59,17 @@ public class Recipe {
     public Recipe() {
     }
 
-    public Recipe(String name, String description, String category, LocalDateTime date, List<String> ingredients, List<String> directions, Long id) {
+    public Recipe(String name, User user, String description, String category, LocalDateTime date, List<String> ingredients, List<String> directions, Long id) {
         this.name = name;
+        this.user = user;
         this.description = description;
         this.category = category;
-        this.date =  date;
+        this.date = date;
         this.ingredients = ingredients;
         this.directions = directions;
         this.id = id;
     }
+
 
     public String getName() {
         return name;
@@ -124,16 +130,22 @@ public class Recipe {
         this.date = date;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Recipe recipe = (Recipe) o;
-        return Objects.equals(getName(), recipe.getName()) && Objects.equals(getDescription(), recipe.getDescription()) && Objects.equals(getCategory(), recipe.getCategory()) && Objects.equals(getDate(), recipe.getDate()) && Objects.equals(getIngredients(), recipe.getIngredients()) && Objects.equals(getDirections(), recipe.getDirections()) && Objects.equals(getId(), recipe.getId());
+    @JsonIgnore
+    @JsonProperty(value = "user_id")
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(getName(), getDescription(), getCategory(), getDate(), getIngredients(), getDirections(), getId());
+    public String toString() {
+        return "Recipe{" +
+                "name='" + name + '\'' + "description='" + description + '\'' +
+                ", category='" + category + '\'' +
+                ", date=" + date + "id=" + id +
+                '}';
     }
 }

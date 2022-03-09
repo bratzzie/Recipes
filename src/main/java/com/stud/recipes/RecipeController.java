@@ -1,12 +1,15 @@
 package com.stud.recipes;
 
+import com.stud.recipes.recipe.Recipe;
+import com.stud.recipes.recipe.RecipeService;
+import com.stud.recipes.user.User;
+import com.stud.recipes.user.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-
 import javax.validation.Valid;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,9 +19,11 @@ import java.util.Optional;
 @RestController
 public class RecipeController {
     private final RecipeService service;
+    private final UserService userService;
 
-    public RecipeController(@Autowired RecipeService service) {
+    public RecipeController(@Autowired RecipeService service, @Autowired UserService userService) {
         this.service = service;
+        this.userService = userService;
     }
 
     @GetMapping("/api/recipe/{id}")
@@ -39,12 +44,12 @@ public class RecipeController {
         return recipeToReturn;
     }
 
+
     @PostMapping("/api/recipe/new")
     public Map<String, Long> postRecipe(@Valid @RequestBody Recipe recipe, BindingResult bindingResult) throws ResponseStatusException {
         if (bindingResult.hasErrors()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
-
         Long index = service.postNewRecipe(recipe);
 
         Map<String, Long> indexToReturn = new LinkedHashMap<>();
@@ -76,5 +81,13 @@ public class RecipeController {
                     : new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
         return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+    }
+
+    @PostMapping("/api/register")
+    public ResponseEntity registerUser(@Valid @RequestBody User user, BindingResult bindingResult) {
+        if (bindingResult.hasErrors()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+        return userService.registerUser(user);
     }
 }
